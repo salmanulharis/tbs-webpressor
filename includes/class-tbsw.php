@@ -35,7 +35,7 @@ class TBS_WebPressor {
 
         // Enqueue scripts and styles if needed
         wp_enqueue_style('tbsw-style', TBSW_PLUGIN_URL . 'assets/css/style.css');
-        wp_enqueue_script('tbsw-script', TBSW_PLUGIN_URL . 'assets/js/script.js', array('jquery'), TBSW_VERSION, true);
+        // wp_enqueue_script('tbsw-script', TBSW_PLUGIN_URL . 'assets/js/script.js', array('jquery'), TBSW_VERSION, true);
         wp_enqueue_script('tbsw-backend-script', TBSW_PLUGIN_URL . 'assets/js/backend.js', array(), TBSW_VERSION, true);
         // Localize script with data for JavaScript
         wp_localize_script('tbsw-backend-script', 'tbswData', array(
@@ -147,7 +147,7 @@ class TBS_WebPressor {
                 $attachment_id = get_the_ID();
                 write_log($attachment_id);
                 // Call your conversion function here
-                // webp_converter_create_webp($attachment_id);
+                $created_data = $this->tbsw_create_webp($attachment_id);
             }
             wp_reset_postdata();
         }else {
@@ -157,6 +157,74 @@ class TBS_WebPressor {
 
         return array('hasMorePages' => $hasMorePages); // Return true if there are more pages to process
     }
+
+    public function tbsw_create_webp($attachment_id) {
+        $count = 0;
+        $file = get_attached_file($attachment_id);
+    
+        if (!$file || !file_exists($file)) {
+            error_log("Invalid or missing file for attachment ID: $attachment_id");
+            return false;
+        }
+    
+        $mime = get_post_mime_type($attachment_id);
+        if (strpos($mime, 'image/') !== 0 || $mime === 'image/webp') {
+            return false;
+        }
+    
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $webp_path = preg_replace('/\.' . preg_quote($ext, '/') . '$/', '.webp', $file);
+    
+        $quality = intval(get_option('webp_quality', 80));
+    
+        if ($this->webp_converter_create_webp($file, $webp_path, $quality)) {
+            error_log("WebP created: " . $webp_path);
+            $count++;
+        } else {
+            error_log("WebP creation failed for: " . $file);
+        }
+    
+        return array('count' => $count, 'webp_path' => $webp_path);
+    }
+    
+    public function webp_converter_create_webp($source, $destination, $quality = 80) {
+        if (!function_exists('imagewebp')) {
+            error_log("imagewebp function not available.");
+            return false;
+        }
+    
+        if (!file_exists($source)) {
+            error_log("Source file does not exist: $source");
+            return false;
+        }
+    
+        $info = getimagesize($source);
+        if (!$info || !isset($info['mime'])) {
+            error_log("Could not get image info from: $source");
+            return false;
+        }
+    
+        switch ($info['mime']) {
+            case 'image/jpeg':
+                $image = imagecreatefromjpeg($source);
+                break;
+            case 'image/png':
+                $image = imagecreatefrompng($source);
+                imagepalettetotruecolor($image);
+                imagealphablending($image, true);
+                imagesavealpha($image, true);
+                break;
+            default:
+                error_log("Unsupported image type: " . $info['mime']);
+                return false;
+        }
+    
+        $success = imagewebp($image, $destination, $quality);
+        imagedestroy($image);
+    
+        return $success;
+    }
+    
 
     /**
      * Register admin settings
@@ -221,27 +289,27 @@ class TBS_WebPressor {
         return $metadata;
     }
 
-    // 3. Image Conversion Logic (PHP GD)
-    function webp_converter_create_webp($source, $destination, $quality = 80) {
-        if (!function_exists('imagewebp')) return false;
+    // // 3. Image Conversion Logic (PHP GD)
+    // function webp_converter_create_webp($source, $destination, $quality = 80) {
+    //     if (!function_exists('imagewebp')) return false;
 
-        $info = getimagesize($source);
-        switch ($info['mime']) {
-            case 'image/jpeg':
-                $image = imagecreatefromjpeg($source);
-                break;
-            case 'image/png':
-                $image = imagecreatefrompng($source);
-                imagepalettetotruecolor($image);
-                imagealphablending($image, true);
-                imagesavealpha($image, true);
-                break;
-            default:
-                return false;
-        }
+    //     $info = getimagesize($source);
+    //     switch ($info['mime']) {
+    //         case 'image/jpeg':
+    //             $image = imagecreatefromjpeg($source);
+    //             break;
+    //         case 'image/png':
+    //             $image = imagecreatefrompng($source);
+    //             imagepalettetotruecolor($image);
+    //             imagealphablending($image, true);
+    //             imagesavealpha($image, true);
+    //             break;
+    //         default:
+    //             return false;
+    //     }
 
-        $success = imagewebp($image, $destination, $quality);
-        imagedestroy($image);
-        return $success;
-    }
+    //     $success = imagewebp($image, $destination, $quality);
+    //     imagedestroy($image);
+    //     return $success;
+    // }
 }
