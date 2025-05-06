@@ -4,7 +4,7 @@ Plugin Name: WebPressor
 Plugin URI: https://your-site.com/webpressor
 Description: A powerful image compression and WebP conversion plugin for WordPress.
 Version: 1.0.0
-Author: Your Name
+Author: Techbysh
 Author URI: http://techbysh.com/
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt

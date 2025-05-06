@@ -19,6 +19,10 @@ class TBS_WebPressor {
         add_action('admin_menu', array($this, 'register_admin_menu'));
         add_action('admin_init', array($this, 'register_admin_settings'));
         add_filter('wp_generate_attachment_metadata', array($this, 'webp_converter_on_upload'), 10, 2);
+        add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
+        add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
+
+        
         
     }
 
@@ -27,11 +31,25 @@ class TBS_WebPressor {
      */
     public function init() {
         // Load text domain for translations
-        load_plugin_textdomain('tbs-webpressor', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-        
+        load_plugin_textdomain('tbs-webpressor', false, TBSW_PLUGIN_DIR . '/languages/');
+
         // Enqueue scripts and styles if needed
-        wp_enqueue_style('tbs-webpressor-style', TBSW_PLUGIN_URL . 'assets/css/style.css');
-        wp_enqueue_script('tbs-webpressor-script', TBSW_PLUGIN_URL . 'assets/js/script.js', array('jquery'), TBSW_VERSION, true);
+        wp_enqueue_style('tbsw-style', TBSW_PLUGIN_URL . 'assets/css/style.css');
+        wp_enqueue_script('tbsw-script', TBSW_PLUGIN_URL . 'assets/js/script.js', array('jquery'), TBSW_VERSION, true);
+        wp_enqueue_script('tbsw-backend-script', TBSW_PLUGIN_URL . 'assets/js/backend.js', array(), TBSW_VERSION, true);
+        // Localize script with data for JavaScript
+        wp_localize_script('tbsw-backend-script', 'tbswData', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('tbsw-nonce'),
+            'plugin_url' => TBSW_PLUGIN_URL,
+            'is_admin' => is_admin(),
+            'max_upload_size' => wp_max_upload_size(),
+            'translations' => array(
+                'converting' => __('Converting images...', 'tbs-webpressor'),
+                'success' => __('Conversion completed successfully!', 'tbs-webpressor'),
+                'error' => __('Error during conversion', 'tbs-webpressor')
+            )
+        ));
     }
 
     /**
@@ -39,6 +57,105 @@ class TBS_WebPressor {
      */
     public function register_admin_menu() {
         add_options_page('WebP Converter', 'WebP Converter', 'manage_options', 'webp-converter', array($this, 'webp_converter_settings_page'));
+
+        // Main menu item
+        add_menu_page(
+            'WebPressor Settings',        // Page title
+            'WebPressor',                 // Menu title
+            'manage_options',            // Capability
+            'tbsw-dashboard',            // Menu slug
+            array($this, 'tbsw_dashboard_page'),       // Callback function
+            'dashicons-admin-generic',   // Icon
+            25                           // Position
+        );
+
+        // Submenu item 1 (repeats main menu)
+        add_submenu_page(
+            'tbsw-dashboard',   // Parent slug - connects to the main menu item
+            'Dashboard',        // Page title - shown in browser title bar
+            'Dashboard',        // Menu title - text shown in the menu
+            'manage_options',   // Capability required for access (admin level)
+            'tbsw-dashboard',   // Menu slug - unique identifier for this page
+            array($this, 'tbsw_dashboard_page') // Callback function that displays the page
+        );
+
+        // Submenu item 2
+        add_submenu_page(
+            'tbsw-dashboard', // Parent slug - connects to the main menu item
+            'Settings', // Page title - shown in browser title bar
+            'Settings', // Menu title - text shown in the menu
+            'manage_options', // Capability required for access (admin level)
+            'tbsw-settings', // Menu slug - unique identifier for this page
+            array($this, 'tbsw_settings_page') // Callback function that displays the page
+        );
+    }
+
+    public function tbsw_dashboard_page() {
+        include TBSW_PLUGIN_DIR . 'admin/dashboard.php';
+    }
+    
+    public function tbsw_settings_page() {
+        include TBSW_PLUGIN_DIR . 'admin/settings.php';
+    }
+
+    public function tbsw_start_conversion() {
+        write_log("AJAX request received for conversion.");
+        $hasMorePages = true; // Default to true
+
+        // Check nonce for security
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'tbsw-nonce')) {
+            wp_send_json_error(array('message' => 'Security check failed'));
+            exit;
+        }
+
+        // Get page parameter from the request
+        $page = isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
+
+        $result = $this->tbsw_convert_attachements($page); // Call the conversion function
+
+        $hasMorePages = $result['hasMorePages']; // Check if there are more pages to process
+        write_log("Page: " . $page . ", Has more pages: " . ($hasMorePages ? 'true' : 'false'));
+
+        // Handle the AJAX request for starting conversion
+        $response = array('status' => 'success', 'message' => 'Conversion started!', 'hasMorePages' => $hasMorePages);
+        wp_send_json($response);
+    }
+
+    public function tbsw_convert_attachements($page) {
+        $hasMorePages = true;
+        $args = array(
+            'post_type'         => 'attachment',
+            'posts_per_page'    => 10,
+            'post_status'       => array(
+                                        'publish', 
+                                        'pending', 
+                                        'draft', 
+                                        'auto-draft', 
+                                        'future', 
+                                        'private', 
+                                        'inherit', 
+                                        'trash'
+                                ),
+            'paged'             => $page,
+        );
+
+        $attachments = new WP_Query($args);
+
+        if ($attachments->have_posts()) {
+            while ($attachments->have_posts()) {
+                $attachments->the_post();
+                $attachment_id = get_the_ID();
+                write_log($attachment_id);
+                // Call your conversion function here
+                // webp_converter_create_webp($attachment_id);
+            }
+            wp_reset_postdata();
+        }else {
+            $hasMorePages = false; // No more attachments to process
+            write_log("No more attachments to convert.");
+        }
+
+        return array('hasMorePages' => $hasMorePages); // Return true if there are more pages to process
     }
 
     /**

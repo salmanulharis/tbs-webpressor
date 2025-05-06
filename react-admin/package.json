@@ -1,0 +1,66 @@
+{
+  "name": "react-admin",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack --progress --mode development --color --watch",
+    "dev": "cross-env NODE_ENV=development webpack serve",
+    "build": "cross-env NODE_ENV=production webpack",
+    "watch": "cross-env NODE_ENV=development webpack --watch",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-react": "^7.22.5",
+    "@wordpress/babel-plugin-makepot": "^6.22.0",
+    "babel-loader": "^9.1.2",
+    "browser-sync": "^3.0.4",
+    "browser-sync-webpack-plugin": "^2.3.0",
+    "cross-env": "^7.0.3",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "description": "React integration with WordPress",
+  "main": "webpack.config.js",
+  "keywords": ["react", "wordpress", "integration"],
+  "author": "",
+  "license": "ISC"
+}
