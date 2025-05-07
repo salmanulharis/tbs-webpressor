@@ -1,0 +1,142 @@
+/* Main Dashboard Container */
+.tbsw-dashboard {
+    padding: 20px;
+    max-width: 1200px;
+}
+
+/* Card Styling */
+.tbsw-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 4px;
+}
+
+/* Progress Container */
+.tbsw-progress-container {
+    margin-bottom: 20px;
+}
+
+.tbsw-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.tbsw-progress-header h2 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.tbsw-progress-percentage {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2271b1;
+}
+
+/* Progress Bar */
+.tbsw-progress-bar {
+    background-color: #f0f0f1;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.tbsw-progress-fill {
+    background-color: #2271b1;
+    height: 100%;
+    transition: width 0.3s ease;
+    min-width: 0%;
+}
+
+/* Stats Section */
+.tbsw-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.tbsw-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tbsw-stat-label {
+    color: #50575e;
+    font-weight: 500;
+}
+
+.tbsw-stat-value {
+    font-weight: bold;
+    color: #2271b1;
+}
+
+/* Button Container */
+.tbsw-button-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Spinner for loading state */
+.tbsw-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Disabled button state */
+.tbsw-disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Notice styling */
+.tbsw-notice {
+    margin: 20px 0;
+    padding: 12px;
+    border-left: 4px solid #72aee6;
+    background-color: #f0f6fc;
+}
+
+/* Dashicons styling */
+.tbsw-stat-item .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #2271b1;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .tbsw-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .tbsw-button-container {
+        flex-direction: column;
+    }
+    
+    .tbsw-button-container button {
+        width: 100%;
+    }
+}

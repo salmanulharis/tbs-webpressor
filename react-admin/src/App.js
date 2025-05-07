@@ -4,8 +4,15 @@ import './App.css';
 function App({ wpData = {} }) {
   const [count, setCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
+  const [isConverting, setIsConverting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  
+  // Calculate completed items and progress percentage
+  const completedCount = Math.max(0, count - pendingCount);
+  const progressPercentage = count > 0 ? Math.round((completedCount / count) * 100) : 0;
 
   const startConverter = () => {
+    setIsConverting(true);
     // ajax call to the server to start the conversion
     const startConversion = async (page = 1) => {
       try {
@@ -26,27 +33,32 @@ function App({ wpData = {} }) {
         }
 
         const data = await response.json();
-        console.log('Conversion progress:', data);
         
         // Check if we need to continue processing more pages
         if (data.hasMorePages) {
-          fetchPendingMediaCount();
+          await fetchPendingMediaCount();
           setTimeout(() => startConversion(page + 1), 1000);
         } else {
           console.log('Conversion completed!');
-          fetchMediaCount();
-          fetchPendingMediaCount();
+          await fetchMediaCount();
+          await fetchPendingMediaCount();
+          setIsConverting(false);
         }
       } catch (error) {
         console.error('Error during conversion:', error);
-        // Handle error
+        setIsConverting(false);
       }
     };
 
     startConversion();
-  }
+  };
 
   const resetConvertedMedia = () => {
+    // Show confirmation dialog before resetting
+    if (!window.confirm('Are you sure you want to reset all converted media? This action cannot be undone.')) {
+      return;
+    }
+
     // ajax call to the server to reset the converted media
     const resetConversion = async () => {
       try {
@@ -75,7 +87,7 @@ function App({ wpData = {} }) {
     };
 
     resetConversion();
-  }
+  };
 
   // Fetch the total media count from the server
   const fetchMediaCount = async () => {
@@ -97,8 +109,8 @@ function App({ wpData = {} }) {
 
       const result = await response.json();
       const data = result.data;
-      console.log('Total media count:', data.count);
       setCount(data.count);
+      updateProgress(data.count);
     } catch (error) {
       console.error('Error fetching media count:', error);
     }
@@ -124,38 +136,99 @@ function App({ wpData = {} }) {
 
       const result = await response.json();
       const data = result.data;
-      console.log('Pending media count:', data.count);
       setPendingCount(data.count);
+      updateProgress();
     } catch (error) {
       console.error('Error fetching pending media count:', error);
+    }
+  };
+
+  // Update progress calculation
+  const updateProgress = () => {
+    if (count > 0) {
+      const completed = Math.max(0, count - pendingCount);
+      setProgress(Math.round((completed / count) * 100));
+    } else {
+      setProgress(0);
     }
   };
 
   useEffect(() => {
     fetchMediaCount();
     fetchPendingMediaCount();
-  }
-  , [wpData.ajax_url, wpData.nonce]);
+  }, [wpData.ajax_url, wpData.nonce]);
   
   return (
-    <div className="tbsw-dasboard-container">
-      <div className="tbsw-total-media-count">
-        <h2>Total Media Count</h2>
-        <p>{count}</p>
+    <div className="wrap tbsw-dashboard">
+      <h1>WebPressor Media Conversion</h1>
+      
+      <div className="tbsw-card">
+        <div className="tbsw-progress-container">
+          <div className="tbsw-progress-header">
+            <h2>Conversion Progress</h2>
+            <span className="tbsw-progress-percentage">{progressPercentage}%</span>
+          </div>
+          
+          <div className="tbsw-progress-bar">
+            <div 
+              className="tbsw-progress-fill" 
+              style={{ width: `${progressPercentage}%` }}
+              aria-valuenow={progressPercentage}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          
+          <div className="tbsw-stats">
+            <div className="tbsw-stat-item">
+              <span className="dashicons dashicons-images-alt"></span>
+              <span className="tbsw-stat-label">Total Media:</span>
+              <span className="tbsw-stat-value">{count}</span>
+            </div>
+            
+            <div className="tbsw-stat-item">
+              <span className="dashicons dashicons-yes-alt"></span>
+              <span className="tbsw-stat-label">Converted:</span>
+              <span className="tbsw-stat-value">{completedCount}</span>
+            </div>
+            
+            <div className="tbsw-stat-item">
+              <span className="dashicons dashicons-clock"></span>
+              <span className="tbsw-stat-label">Pending:</span>
+              <span className="tbsw-stat-value">{pendingCount}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="tbsw-button-container">
+          <button 
+            className={`button button-primary${isConverting ? ' tbsw-disabled' : ''}`}
+            onClick={startConverter}
+            disabled={isConverting}
+          >
+            {isConverting ? (
+              <>
+                <span className="tbsw-spinner"></span>
+                Converting...
+              </>
+            ) : 'Start Conversion'}
+          </button>
+          
+          <button 
+            className="button button-secondary" 
+            onClick={resetConvertedMedia}
+            disabled={isConverting || completedCount === 0}
+          >
+            Reset Conversions
+          </button>
+        </div>
       </div>
-      <div className="tbsw-pending-media-count">
-        <h2>Pending Media Count</h2>
-        <p>{pendingCount}</p>
-      </div>
-      <div className='tbsw-button-container'>
-        <button onClick={startConverter}>
-          Start Conversion
-        </button>
-        <button onClick={resetConvertedMedia}>
-          Reset
-        </button>
-      </div>
-
+      
+      {isConverting && (
+        <div className="tbsw-notice notice-info">
+          <p>Conversion in progress. Please do not close this page until completion.</p>
+        </div>
+      )}
     </div>
   );
 }
