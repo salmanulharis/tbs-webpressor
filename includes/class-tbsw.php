@@ -15,10 +15,15 @@ class TBS_WebPressor {
     public function run() {
         // Add your plugin's main functionality here
         add_action('init', array($this, 'init'));
-        add_action('add_attachment', array($this, 'process_image'));
         add_action('admin_menu', array($this, 'register_admin_menu'));
-        add_action('admin_init', array($this, 'register_admin_settings'));
-        add_filter('wp_generate_attachment_metadata', array($this, 'webp_converter_on_upload'), 10, 2);
+        // add_filter('wp_generate_attachment_metadata', array($this, 'webp_converter_on_upload'), 10, 2);
+        add_filter('wp_get_attachment_url', array($this, 'tbsw_maybe_serve_webp_version'), 9999);
+        // add_filter('wp_get_attachment_metadata', array($this, 'tbsw_maybe_serve_webp_version'), 9999);
+        add_filter('the_content', array($this, 'tbsw_replace_images_with_webp'));
+        add_filter('widget_text', array($this, 'tbsw_replace_images_with_webp'));
+        add_filter('widget_custom_html_content', array($this, 'tbsw_replace_images_with_webp'));
+
+        // Ajax actions
         add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
         add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
         add_action('wp_ajax_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
@@ -104,6 +109,77 @@ class TBS_WebPressor {
         include TBSW_PLUGIN_DIR . 'admin/settings.php';
     }
 
+    function tbsw_maybe_serve_webp_version($url) {
+        // Only run for front-end (not admin or REST)
+        if (is_admin() || defined('REST_REQUEST')) {
+            return $url;
+        }
+    
+        // Check if browser supports WebP
+        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'image/webp') === false) {
+            return $url;
+        }
+    
+        // Check if it's an image
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        if (!in_array(strtolower($ext), ['jpg', 'jpeg', 'png'])) {
+            return $url;
+        }
+    
+        // Construct WebP URL
+        $webp_url = preg_replace('/\.' . preg_quote($ext, '/') . '$/i', '.webp', $url);
+    
+        // Convert URL to path to check file exists
+        $upload_dir = wp_upload_dir();
+        $relative_path = str_replace($upload_dir['baseurl'], '', $webp_url);
+        $webp_path = $upload_dir['basedir'] . $relative_path;
+    
+        // If WebP version exists, return it
+        if (file_exists($webp_path)) {
+            return $webp_url;
+        }
+    
+        return $url;
+    }
+
+    function tbsw_replace_images_with_webp($content) {
+        // Skip admin and feed
+        if (is_admin() || is_feed()) {
+            return $content;
+        }
+    
+        // Check if browser supports WebP
+        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'image/webp') === false) {
+            return $content;
+        }
+    
+        // Process all <img> tags with .jpg, .jpeg, .png
+        return preg_replace_callback(
+            '#<img[^>]+src=["\']([^"\']+\.(jpg|jpeg|png))["\'][^>]*>#i',
+            function ($matches) {
+                $original_tag = $matches[0];
+                $original_url = $matches[1];
+    
+                // Generate webp URL
+                $webp_url = preg_replace('/\.(jpe?g|png)$/i', '.webp', $original_url);
+    
+                // Check if .webp file exists
+                $upload_dir = wp_upload_dir();
+                $relative_path = str_replace($upload_dir['baseurl'], '', $webp_url);
+                $webp_path = $upload_dir['basedir'] . $relative_path;
+    
+                if (file_exists($webp_path)) {
+                    // Replace src with .webp version
+                    return str_replace($original_url, $webp_url, $original_tag);
+                }
+    
+                // If no webp version, return original
+                return $original_tag;
+            },
+            $content
+        );
+    }
+    
     public function tbsw_start_conversion() {
         write_log("AJAX request received for conversion.");
         $hasMorePages = true; // Default to true
@@ -180,24 +256,45 @@ class TBS_WebPressor {
     
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         $webp_path = preg_replace('/\.' . preg_quote($ext, '/') . '$/', '.webp', $file);
-    
         $quality = intval(get_option('webp_quality', 80));
     
+        // Convert original image
         if ($this->webp_converter_create_webp($file, $webp_path, $quality)) {
             error_log("WebP created: " . $webp_path);
-            // Also store the WebP path for future reference
-            if (function_exists('update_post_meta')) {
-                // Normalize path to use forward slashes to avoid escape character issues
-                $normalized_path = str_replace('\\', '/', $webp_path);
-                update_post_meta($attachment_id, 'tbsw_webp_path', $normalized_path);
-            }
+            $normalized_path = str_replace('\\', '/', $webp_path);
+            update_post_meta($attachment_id, 'tbsw_webp_path', $normalized_path);
             $count++;
         } else {
             error_log("WebP creation failed for: " . $file);
         }
     
+        // Convert thumbnails
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        if (!empty($metadata['sizes'])) {
+            $upload_dir = wp_upload_dir();
+            $base_dir = trailingslashit($upload_dir['basedir']);
+            $subdir = trailingslashit(dirname($metadata['file']));
+    
+            foreach ($metadata['sizes'] as $size_name => $size_info) {
+                $thumb_path = $base_dir . $subdir . $size_info['file'];
+    
+                if (!file_exists($thumb_path)) continue;
+    
+                $thumb_ext = pathinfo($thumb_path, PATHINFO_EXTENSION);
+                $thumb_webp_path = preg_replace('/\.' . preg_quote($thumb_ext, '/') . '$/', '.webp', $thumb_path);
+    
+                if ($this->webp_converter_create_webp($thumb_path, $thumb_webp_path, $quality)) {
+                    error_log("WebP thumbnail created: $thumb_webp_path");
+                    $count++;
+                } else {
+                    error_log("WebP thumbnail creation failed: $thumb_path");
+                }
+            }
+        }
+    
         return array('count' => $count, 'webp_path' => $webp_path);
     }
+    
     
     public function webp_converter_create_webp($source, $destination, $quality = 80) {
         if (!function_exists('imagewebp')) {
@@ -312,135 +409,61 @@ class TBS_WebPressor {
             wp_send_json_error(array('message' => 'Security check failed'));
             exit;
         }
-
-        // Reset conversion status for all attachments
+    
         $args = array(
-            'post_type' => 'attachment',
-            'post_status' => array(
-                'publish', 
-                'pending', 
-                'draft', 
-                'auto-draft', 
-                'future', 
-                'private', 
-                'inherit', 
-                'trash'
-            ),
+            'post_type'      => 'attachment',
+            'post_status'    => array('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit', 'trash'),
             'posts_per_page' => -1,
+            'post_mime_type' => 'image',
         );
-
+    
         $attachments = new WP_Query($args);
-
+    
         if ($attachments->have_posts()) {
             while ($attachments->have_posts()) {
                 $attachments->the_post();
                 $attachment_id = get_the_ID();
-                // Remove file from the server if it exists
-                $webp_path = get_post_meta($attachment_id, 'tbsw_webp_path', true);
-                write_log($webp_path);
-                if ($webp_path && file_exists($webp_path)) {
-                    write_log("inside");
-                    unlink($webp_path); // Delete the WebP file
+    
+                $file = get_attached_file($attachment_id);
+                if (!$file || !file_exists($file)) {
+                    continue;
                 }
-                // Remove the meta data
+    
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                $webp_main = preg_replace('/\.' . preg_quote($ext, '/') . '$/', '.webp', $file);
+    
+                // Delete main WebP if exists
+                if (file_exists($webp_main)) {
+                    unlink($webp_main);
+                }
+    
+                // Delete thumbnail WebPs
+                $metadata = wp_get_attachment_metadata($attachment_id);
+                $upload_dir = wp_upload_dir();
+                $base_dir   = trailingslashit($upload_dir['basedir']);
+                $subdir     = isset($metadata['file']) ? dirname($metadata['file']) . '/' : '';
+    
+                if (!empty($metadata['sizes'])) {
+                    foreach ($metadata['sizes'] as $size) {
+                        if (!empty($size['file'])) {
+                            $thumb_file = $base_dir . $subdir . $size['file'];
+                            $ext_thumb  = pathinfo($thumb_file, PATHINFO_EXTENSION);
+                            $webp_thumb = preg_replace('/\.' . preg_quote($ext_thumb, '/') . '$/', '.webp', $thumb_file);
+                            if (file_exists($webp_thumb)) {
+                                unlink($webp_thumb);
+                            }
+                        }
+                    }
+                }
+    
+                // Remove meta for original webp path
                 delete_post_meta($attachment_id, 'tbsw_webp_path');
             }
+    
             wp_reset_postdata();
         }
-
+    
         wp_send_json_success(array('message' => 'Conversion reset successfully!'));
     }
-
-    // -------------------------------------------------------------------------------
     
-
-    /**
-     * Register admin settings
-     */
-    public function register_admin_settings() {
-        register_setting('webp_converter_settings', 'webp_quality');
-        add_settings_section('webp_main', 'Main Settings', null, 'webp-converter');
-        add_settings_field('webp_quality', 'Compression Quality (0-100)', array($this, 'webp_quality_field'), 'webp-converter', 'webp_main');
-    }
-
-    /**
-     * Quality field callback
-     */
-    public function webp_quality_field() {
-        $quality = get_option('webp_quality', 80);
-        echo "<input type='number' name='webp_quality' value='$quality' min='0' max='100'>";
-    }
-
-    /**
-     * Settings page callback
-     */
-    public function webp_converter_settings_page() {
-        ?>
-        <div class="wrap">
-            <h2>WebP Converter Settings</h2>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields('webp_converter_settings');
-                do_settings_sections('webp-converter');
-                submit_button();
-                ?>
-            </form>
-        </div>
-        <?php
-    }
-
-    /**
-     * Process image when uploaded
-     */
-    public function process_image($attachment_id) {
-        // Add image processing code here
-    // 2. Convert to WebP on Upload
-    function webp_converter_on_upload($metadata, $attachment_id) {
-        $file = get_attached_file($attachment_id);
-        $mime = get_post_mime_type($attachment_id);
-
-        if (strpos($mime, 'image/') !== 0 || $mime === 'image/webp') return $metadata;
-
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-        $webp_path = preg_replace('/\.' . preg_quote($ext, '/') . '$/', '.webp', $file);
-
-        $quality = intval(get_option('webp_quality', 80));
-
-        if ($this->webp_converter_create_webp($file, $webp_path, $quality)) {
-            error_log("WebP created: " . $webp_path);
-            if (function_exists('update_post_meta')) {
-                update_post_meta($attachment_id, 'tbsw_webp_path', $webp_path);
-            }
-        } else {
-            error_log("WebP creation failed for: " . $file);
-        }
-
-        return $metadata;
-    }
-        return $metadata;
-    }
-
-    // // 3. Image Conversion Logic (PHP GD)
-    // function webp_converter_create_webp($source, $destination, $quality = 80) {
-    //     if (!function_exists('imagewebp')) return false;
-
-    //     $info = getimagesize($source);
-    //     switch ($info['mime']) {
-    //         case 'image/jpeg':
-    //             $image = imagecreatefromjpeg($source);
-    //             break;
-    //         case 'image/png':
-    //             $image = imagecreatefrompng($source);
-    //             imagepalettetotruecolor($image);
-    //             imagealphablending($image, true);
-    //             imagesavealpha($image, true);
-    //             break;
-    //         default:
-    //             return false;
-    //     }
-
-    //     $success = imagewebp($image, $destination, $quality);
-    //     imagedestroy($image);
-    //     return $success;
-    // }
 }
