@@ -30,13 +30,12 @@ function App({ wpData = {} }) {
         
         // Check if we need to continue processing more pages
         if (data.hasMorePages) {
-          // Continue with next page
-          setTimeout(() => startConversion(page + 1), 1000); // Add delay between requests
+          fetchPendingMediaCount();
+          setTimeout(() => startConversion(page + 1), 1000);
         } else {
           console.log('Conversion completed!');
-          fetchMediaCount(); // Refresh the media count after conversion
-          fetchPendingMediaCount(); // Refresh the pending media count after conversion
-          // Handle completion
+          fetchMediaCount();
+          fetchPendingMediaCount();
         }
       } catch (error) {
         console.error('Error during conversion:', error);
