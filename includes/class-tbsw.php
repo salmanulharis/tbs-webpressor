@@ -21,6 +21,12 @@ class TBS_WebPressor {
         add_filter('wp_generate_attachment_metadata', array($this, 'webp_converter_on_upload'), 10, 2);
         add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
         add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
+        add_action('wp_ajax_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
+        add_action('wp_ajax_nopriv_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
+        add_action('wp_ajax_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
+        add_action('wp_ajax_nopriv_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
+        add_action('wp_ajax_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
+        add_action('wp_ajax_nopriv_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
 
         
         
@@ -179,6 +185,12 @@ class TBS_WebPressor {
     
         if ($this->webp_converter_create_webp($file, $webp_path, $quality)) {
             error_log("WebP created: " . $webp_path);
+            // Also store the WebP path for future reference
+            if (function_exists('update_post_meta')) {
+                // Normalize path to use forward slashes to avoid escape character issues
+                $normalized_path = str_replace('\\', '/', $webp_path);
+                update_post_meta($attachment_id, 'tbsw_webp_path', $normalized_path);
+            }
             $count++;
         } else {
             error_log("WebP creation failed for: " . $file);
@@ -224,6 +236,122 @@ class TBS_WebPressor {
     
         return $success;
     }
+
+
+    public function tbsw_get_media_count() {
+        // Check nonce for security
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'tbsw-nonce')) {
+            wp_send_json_error(array('message' => 'Security check failed'));
+            exit;
+        }
+
+        $args = array(
+            'post_type' => 'attachment',
+            'post_status' => array(
+                'publish', 
+                'pending', 
+                'draft', 
+                'auto-draft', 
+                'future', 
+                'private', 
+                'inherit', 
+                'trash'
+            ),
+            'posts_per_page' => -1,
+        );
+
+        $attachments = new WP_Query($args);
+        $count = $attachments->found_posts;
+
+        wp_send_json_success(array('count' => $count));
+    }
+
+    public function tbsw_get_pending_media_count() {
+        // Check nonce for security
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'tbsw-nonce')) {
+            wp_send_json_error(array('message' => 'Security check failed'));
+            exit;
+        }
+
+        $args = array(
+            'post_type' => 'attachment',
+            'post_status' => array(
+                'publish', 
+                'pending', 
+                'draft', 
+                'auto-draft', 
+                'future', 
+                'private', 
+                'inherit', 
+                'trash'
+            ),
+            'posts_per_page' => -1,
+            'meta_query' => array(
+                'relation' => 'OR',
+                array(
+                    'key' => 'tbsw_webp_path',
+                    'compare' => 'NOT EXISTS'
+                ),
+                array(
+                    'key' => 'tbsw_webp_path',
+                    'value' => '',
+                    'compare' => '='
+                )
+            ),
+        );
+
+        $attachments = new WP_Query($args);
+        $count = $attachments->found_posts;
+
+        wp_send_json_success(array('count' => $count));
+    }
+
+    public function tbsw_reset_conversion() {
+        // Check nonce for security
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'tbsw-nonce')) {
+            wp_send_json_error(array('message' => 'Security check failed'));
+            exit;
+        }
+
+        // Reset conversion status for all attachments
+        $args = array(
+            'post_type' => 'attachment',
+            'post_status' => array(
+                'publish', 
+                'pending', 
+                'draft', 
+                'auto-draft', 
+                'future', 
+                'private', 
+                'inherit', 
+                'trash'
+            ),
+            'posts_per_page' => -1,
+        );
+
+        $attachments = new WP_Query($args);
+
+        if ($attachments->have_posts()) {
+            while ($attachments->have_posts()) {
+                $attachments->the_post();
+                $attachment_id = get_the_ID();
+                // Remove file from the server if it exists
+                $webp_path = get_post_meta($attachment_id, 'tbsw_webp_path', true);
+                write_log($webp_path);
+                if ($webp_path && file_exists($webp_path)) {
+                    write_log("inside");
+                    unlink($webp_path); // Delete the WebP file
+                }
+                // Remove the meta data
+                delete_post_meta($attachment_id, 'tbsw_webp_path');
+            }
+            wp_reset_postdata();
+        }
+
+        wp_send_json_success(array('message' => 'Conversion reset successfully!'));
+    }
+
+    // -------------------------------------------------------------------------------
     
 
     /**
@@ -266,8 +394,6 @@ class TBS_WebPressor {
      */
     public function process_image($attachment_id) {
         // Add image processing code here
-    }
-
     // 2. Convert to WebP on Upload
     function webp_converter_on_upload($metadata, $attachment_id) {
         $file = get_attached_file($attachment_id);
@@ -280,12 +406,17 @@ class TBS_WebPressor {
 
         $quality = intval(get_option('webp_quality', 80));
 
-        if (webp_converter_create_webp($file, $webp_path, $quality)) {
+        if ($this->webp_converter_create_webp($file, $webp_path, $quality)) {
             error_log("WebP created: " . $webp_path);
+            if (function_exists('update_post_meta')) {
+                update_post_meta($attachment_id, 'tbsw_webp_path', $webp_path);
+            }
         } else {
             error_log("WebP creation failed for: " . $file);
         }
 
+        return $metadata;
+    }
         return $metadata;
     }
 
