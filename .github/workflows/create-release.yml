@@ -1,0 +1,61 @@
+name: Create Release Package
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up environment
+        run: |
+          mkdir -p release_temp
+          mkdir -p artifacts
+          
+      - name: Extract tag name
+        id: get_tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          
+      - name: Create release directory
+        run: |
+          mkdir -p release_temp/tbs_webpressor
+          
+      - name: Copy files excluding specified ones
+        run: |
+          rsync -av --progress ./ release_temp/tbs_webpressor/ \
+          --exclude=".git/" \
+          --exclude="react-admin/" \
+          --exclude=".gitignore" \
+          --exclude=".github/" \
+          --exclude=".gitlab-ci.yml"
+          
+      - name: Remove any remaining git files
+        run: |
+          find release_temp/tbs_webpressor -name ".git*" -exec rm -rf {} \; 2>/dev/null || true
+          
+      - name: Create ZIP file
+        run: |
+          cd release_temp
+          zip -r "../artifacts/tbs_webpressor_${{ env.TAG }}.zip" tbs_webpressor
+          cd ..
+          
+      - name: List ZIP contents
+        run: |
+          unzip -l "artifacts/tbs_webpressor_${{ env.TAG }}.zip"
+          
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/tbs_webpressor_${{ env.TAG }}.zip
+          name: Release ${{ env.TAG }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
