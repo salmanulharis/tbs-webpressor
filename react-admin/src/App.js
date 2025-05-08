@@ -40,13 +40,12 @@ function App({ wpData = {} }) {
         if (data.hasMorePages && !stopConversion.current) {
           setTimeout(() => startConversion(page + 1), 1000);
         } else {
-          console.log('Conversion completed!');
           setIsConverting(false);
         }
         await fetchMediaCount();
         await fetchPendingMediaCount();
       } catch (error) {
-        console.error('Error during conversion:', error);
+        // console.error('Error during conversion:', error);
         setIsConverting(false);
       }
     };
@@ -79,11 +78,10 @@ function App({ wpData = {} }) {
         }
 
         const data = await response.json();
-        console.log('Reset conversion:', data);
         fetchMediaCount(); // Refresh the media count after reset
         fetchPendingMediaCount(); // Refresh the pending media count after reset
       } catch (error) {
-        console.error('Error during reset conversion:', error);
+        // console.error('Error during reset conversion:', error);
       }
     };
 
@@ -113,7 +111,7 @@ function App({ wpData = {} }) {
       setCount(data.count);
       updateProgress(data.count);
     } catch (error) {
-      console.error('Error fetching media count:', error);
+      // console.error('Error fetching media count:', error);
     }
   };
 
@@ -140,7 +138,7 @@ function App({ wpData = {} }) {
       setPendingCount(data.count);
       updateProgress();
     } catch (error) {
-      console.error('Error fetching pending media count:', error);
+      // console.error('Error fetching pending media count:', error);
     }
   };
 
