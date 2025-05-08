@@ -6,7 +6,7 @@ on:
       - '*'
 
 permissions:
-  contents: write  # Required to create releases and upload assets
+  contents: write
 
 jobs:
   build:
@@ -24,18 +24,13 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
-      - name: Create release folder
+      - name: Archive project files excluding specific items
         run: |
-          mkdir release
-          rsync -av --exclude='react-admin' \
-                    --exclude='.gitignore' \
-                    --exclude='.github' \
-                    ./ release/
-
-      - name: Zip release
-        run: |
-          cd release
-          zip -r "../$ZIP_NAME" .
+          zip -r "${ZIP_NAME}" . \
+            -x "react-admin/*" \
+            -x ".git/*" \
+            -x ".gitignore" \
+            -x ".github/*"
 
       - name: Create GitHub Release and Upload ZIP
         uses: softprops/action-gh-release@v1
