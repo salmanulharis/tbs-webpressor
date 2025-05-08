@@ -39,17 +39,17 @@ class TBS_WebPressor_Ajax {
      */
     public function setup_hooks() {
         // Ajax actions - mapped for both logged-in and non-logged in users
-        add_action('wp_ajax_tbsw_start_conversion', array($this, 'start_conversion'));
-        add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'start_conversion'));
+        add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
+        add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
         
-        add_action('wp_ajax_tbsw_get_media_count', array($this, 'get_media_count'));
-        add_action('wp_ajax_nopriv_tbsw_get_media_count', array($this, 'get_media_count'));
+        add_action('wp_ajax_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
+        add_action('wp_ajax_nopriv_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
         
-        add_action('wp_ajax_tbsw_get_pending_media_count', array($this, 'get_pending_media_count'));
-        add_action('wp_ajax_nopriv_tbsw_get_pending_media_count', array($this, 'get_pending_media_count'));
+        add_action('wp_ajax_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
+        add_action('wp_ajax_nopriv_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
         
-        add_action('wp_ajax_tbsw_reset_conversion', array($this, 'reset_conversion'));
-        add_action('wp_ajax_nopriv_tbsw_reset_conversion', array($this, 'reset_conversion'));
+        add_action('wp_ajax_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
+        add_action('wp_ajax_nopriv_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
     }
 
     /**
@@ -69,7 +69,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function start_conversion() {
+    public function tbsw_start_conversion() {
         $this->verify_nonce();
 
         // Get page parameter from the request
@@ -89,7 +89,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function get_media_count() {
+    public function tbsw_get_media_count() {
         $this->verify_nonce();
 
         $args = array(
@@ -105,6 +105,7 @@ class TBS_WebPressor_Ajax {
                 'trash'
             ),
             'posts_per_page' => -1,
+            'post_mime_type' => 'image',
         );
 
         $attachments = new WP_Query($args);
@@ -118,7 +119,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function get_pending_media_count() {
+    public function tbsw_get_pending_media_count() {
         $this->verify_nonce();
 
         $args = array(
@@ -134,6 +135,7 @@ class TBS_WebPressor_Ajax {
                 'trash'
             ),
             'posts_per_page' => -1,
+            'post_mime_type' => 'image',
             'meta_query' => array(
                 'relation' => 'OR',
                 array(
@@ -159,7 +161,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function reset_conversion() {
+    public function tbsw_reset_conversion() {
         $this->verify_nonce();
     
         $args = array(

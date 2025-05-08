@@ -15,13 +15,18 @@ if (isset($_POST['tbsw_save_settings']) && check_admin_referer('tbsw_settings_no
     $quality = isset($_POST['webp_quality']) ? intval($_POST['webp_quality']) : 80;
     $quality = max(0, min(100, $quality)); // Ensure quality is between 0-100
     
-    update_option('webp_quality', $quality);
+    update_option('tbsw_webp_quality', $quality);
+    
+    // Save convert_on_upload setting
+    $convert_on_upload = isset($_POST['convert_on_upload']) ? 1 : 0;
+    update_option('tbsw_convert_on_upload', $convert_on_upload);
     
     echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully!', 'tbs-webpressor') . '</p></div>';
 }
 
 // Get current settings
-$quality = get_option('webp_quality', 80);
+$quality = get_option('tbsw_webp_quality', 80);
+$convert_on_upload = get_option('tbsw_convert_on_upload', 1);
 ?>
 
 <div class="wrap tbsw-settings">
@@ -43,6 +48,18 @@ $quality = get_option('webp_quality', 80);
                         <?php _e('Quality level between 0 (worst quality, smaller file) and 100 (best quality, larger file).', 'tbs-webpressor'); ?>
                         <br>
                         <?php _e('Recommended: 75-85 for a good balance between quality and file size.', 'tbs-webpressor'); ?>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <label for="convert_on_upload"><?php _e('Convert on Upload', 'tbs-webpressor'); ?></label>
+                </th>
+                <td>
+                    <input type="checkbox" name="convert_on_upload" id="convert_on_upload" 
+                           value="1" <?php checked($convert_on_upload); ?>>
+                    <p class="description">
+                        <?php _e('Automatically convert images to WebP when they are uploaded to the media library.', 'tbs-webpressor'); ?>
                     </p>
                 </td>
             </tr>

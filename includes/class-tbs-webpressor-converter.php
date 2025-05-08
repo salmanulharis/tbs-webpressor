@@ -29,12 +29,11 @@ class TBS_WebPressor_Converter {
      * @param    int    $attachment_id    The attachment ID to convert
      * @return   array|bool               Conversion stats or false on failure
      */
-    public function create_webp($attachment_id) {
+    public static function create_webp($attachment_id) {
         $count = 0;
         $file = get_attached_file($attachment_id);
     
         if (!$file || !file_exists($file)) {
-            error_log("Invalid or missing file for attachment ID: $attachment_id");
             return false;
         }
     
@@ -45,17 +44,16 @@ class TBS_WebPressor_Converter {
     
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         $webp_path = preg_replace('/\.' . preg_quote($ext, '/') . '$/', '.webp', $file);
-        $quality = intval(get_option('webp_quality', 80));
+        $quality = intval(get_option('tbsw_webp_quality', 80));
     
         // Convert original image
-        if ($this->create_webp_file($file, $webp_path, $quality)) {
-            error_log("WebP created: " . $webp_path);
+        if (self::create_webp_file($file, $webp_path, $quality)) {
             $normalized_path = str_replace('\\', '/', $webp_path);
             update_post_meta($attachment_id, 'tbsw_webp_path', $normalized_path);
             $count++;
         } else {
-            error_log("WebP creation failed for: " . $file);
         }
+
     
         // Convert thumbnails
         $metadata = wp_get_attachment_metadata($attachment_id);
@@ -72,11 +70,8 @@ class TBS_WebPressor_Converter {
                 $thumb_ext = pathinfo($thumb_path, PATHINFO_EXTENSION);
                 $thumb_webp_path = preg_replace('/\.' . preg_quote($thumb_ext, '/') . '$/', '.webp', $thumb_path);
     
-                if ($this->create_webp_file($thumb_path, $thumb_webp_path, $quality)) {
-                    error_log("WebP thumbnail created: $thumb_webp_path");
+                if (self::create_webp_file($thumb_path, $thumb_webp_path, $quality)) {
                     $count++;
-                } else {
-                    error_log("WebP thumbnail creation failed: $thumb_path");
                 }
             }
         }
@@ -93,20 +88,17 @@ class TBS_WebPressor_Converter {
      * @param    int       $quality       WebP quality (0-100)
      * @return   bool                     Success or failure
      */
-    public function create_webp_file($source, $destination, $quality = 80) {
+    public static function create_webp_file($source, $destination, $quality = 80) {
         if (!function_exists('imagewebp')) {
-            error_log("imagewebp function not available.");
             return false;
         }
     
         if (!file_exists($source)) {
-            error_log("Source file does not exist: $source");
             return false;
         }
     
         $info = getimagesize($source);
         if (!$info || !isset($info['mime'])) {
-            error_log("Could not get image info from: $source");
             return false;
         }
     
@@ -121,7 +113,6 @@ class TBS_WebPressor_Converter {
                 imagesavealpha($image, true);
                 break;
             default:
-                error_log("Unsupported image type: " . $info['mime']);
                 return false;
         }
     
@@ -138,7 +129,7 @@ class TBS_WebPressor_Converter {
      * @param    int    $page    Current page for batch processing
      * @return   array           Result with hasMorePages status
      */
-    public function convert_attachements_batch($page) {
+    public static function convert_attachements_batch($page) {
         $hasMorePages = true;
         $args = array(
             'post_type'      => 'attachment',
@@ -163,7 +154,7 @@ class TBS_WebPressor_Converter {
                 $attachments->the_post();
                 $attachment_id = get_the_ID();
                 // Call conversion function
-                $created_data = $this->create_webp($attachment_id);
+                $created_data = self::create_webp($attachment_id);
             }
             wp_reset_postdata();
         } else {

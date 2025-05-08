@@ -38,10 +38,10 @@ class TBS_WebPressor_Public {
      * @since    1.0.0
      */
     public function setup_hooks() {
-        add_filter('wp_get_attachment_url', array($this, 'maybe_serve_webp_version'), 9999);
-        add_filter('the_content', array($this, 'replace_images_with_webp'));
-        add_filter('widget_text', array($this, 'replace_images_with_webp'));
-        add_filter('widget_custom_html_content', array($this, 'replace_images_with_webp'));
+        add_filter('wp_get_attachment_url', array($this, 'tbsw_maybe_serve_webp_version'), 9999);
+        add_filter('the_content', array($this, 'tbsw_replace_images_with_webp'));
+        add_filter('widget_text', array($this, 'tbsw_replace_images_with_webp'));
+        add_filter('widget_custom_html_content', array($this, 'tbsw_replace_images_with_webp'));
     }
 
     /**
@@ -51,7 +51,7 @@ class TBS_WebPressor_Public {
      * @param    string    $url    Original attachment URL
      * @return   string            Original or WebP URL
      */
-    public function maybe_serve_webp_version($url) {
+    public function tbsw_maybe_serve_webp_version($url) {
         // Only run for front-end (not admin or REST)
         if (is_admin() || defined('REST_REQUEST')) {
             return $url;
@@ -91,7 +91,7 @@ class TBS_WebPressor_Public {
      * @param    string    $content    Content to process
      * @return   string                Processed content
      */
-    public function replace_images_with_webp($content) {
+    public function tbsw_replace_images_with_webp($content) {
         // Skip admin and feed
         if (is_admin() || is_feed()) {
             return $content;

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './App.css';
 
 function App({ wpData = {} }) {
   const [count, setCount] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [isConverting, setIsConverting] = useState(false);
+  const stopConversion = useRef(true);
   const [progress, setProgress] = useState(0);
   
   // Calculate completed items and progress percentage
@@ -13,6 +14,7 @@ function App({ wpData = {} }) {
 
   const startConverter = () => {
     setIsConverting(true);
+    stopConversion.current = false;
     // ajax call to the server to start the conversion
     const startConversion = async (page = 1) => {
       try {
@@ -35,15 +37,14 @@ function App({ wpData = {} }) {
         const data = await response.json();
         
         // Check if we need to continue processing more pages
-        if (data.hasMorePages) {
-          await fetchPendingMediaCount();
+        if (data.hasMorePages && !stopConversion.current) {
           setTimeout(() => startConversion(page + 1), 1000);
         } else {
           console.log('Conversion completed!');
-          await fetchMediaCount();
-          await fetchPendingMediaCount();
           setIsConverting(false);
         }
+        await fetchMediaCount();
+        await fetchPendingMediaCount();
       } catch (error) {
         console.error('Error during conversion:', error);
         setIsConverting(false);
@@ -220,6 +221,19 @@ function App({ wpData = {} }) {
             disabled={isConverting || completedCount === 0}
           >
             Reset Conversions
+          </button>
+
+          <button 
+            className="button button-secondary"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to stop the conversion process?')) {
+                stopConversion.current = true;
+                setIsConverting(false);
+              }
+            }}
+            disabled={!isConverting}
+          >
+            Stop Conversion
           </button>
         </div>
       </div>

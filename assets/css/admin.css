@@ -88,10 +88,10 @@
 /* Spinner for loading state */
 .tbsw-spinner {
     display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-    border: 2px solid rgba(255,255,255,0.3);
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border: 2px solid #a7aaad;
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 1s ease-in-out infinite;
@@ -106,6 +106,8 @@
 .tbsw-disabled {
     cursor: not-allowed;
     opacity: 0.7;
+    display: flex !important;
+    align-items: center;
 }
 
 /* Notice styling */

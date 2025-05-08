@@ -38,8 +38,9 @@ class TBS_WebPressor_Admin {
      * @since    1.0.0
      */
     public function setup_hooks() {
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_styles'));
-        add_action('admin_menu', array($this, 'register_admin_menu'));
+        add_action('admin_enqueue_scripts', array($this, 'tbsw_enqueue_admin_styles'));
+        add_action('admin_menu', array($this, 'tbsw_register_admin_menu'));
+        add_filter('wp_generate_attachment_metadata', array($this, 'tbsw_convert_on_upload'), 99, 2);
     }
 
     /**
@@ -47,7 +48,7 @@ class TBS_WebPressor_Admin {
      *
      * @since    1.0.0
      */
-    public function enqueue_admin_styles() {
+    public function tbsw_enqueue_admin_styles() {
         wp_enqueue_style('tbsw-admin-style', TBSW_PLUGIN_URL . 'assets/css/admin.css', array(), TBSW_VERSION);
     }
 
@@ -56,7 +57,7 @@ class TBS_WebPressor_Admin {
      *
      * @since    1.0.0
      */
-    public function register_admin_menu() {
+    public function tbsw_register_admin_menu() {
         // Main menu item
         add_menu_page(
             'WebPressor Settings',        // Page title
@@ -106,4 +107,29 @@ class TBS_WebPressor_Admin {
     public function settings_page() {
         include TBSW_PLUGIN_DIR . 'admin/settings.php';
     }
+
+    /**
+     * Convert image on upload
+     *
+     * @since    1.0.0
+     * @param    int    $attachment_id    Attachment ID
+     */
+    public function tbsw_convert_on_upload($metadata, $attachment_id) {
+        // Get file information
+        $file_type = get_post_mime_type($attachment_id);
+
+        // Only process image attachments
+        if (strpos($file_type, 'image/') === 0 && $file_type !== 'image/webp') {
+            // Get plugin settings
+            $option = get_option('tbsw_convert_on_upload', array());
+            
+            // Check if auto-conversion on upload is enabled
+            if ($option) {
+                // Use the converter instance to create WebP version
+                $converted = $this->converter->create_webp($attachment_id);
+            }
+        }
+        return $metadata;
+    }
+    
 }

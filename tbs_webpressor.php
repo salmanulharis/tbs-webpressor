@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: TBS WebPressor
+ * Plugin Name: WebPressor - WebP Image Converter & Optimizer for WordPress
  * Description: A WordPress plugin to convert images to WebP format and serve them to compatible browsers.
  * Version: 1.0.0
- * Author: TBS
+ * Author: techbysh
  * Text Domain: tbs-webpressor
  * Domain Path: /languages
  */
