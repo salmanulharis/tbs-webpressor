@@ -9,34 +9,36 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up tag name and zip file
-        id: prepare
+      - name: Prepare release folder
+        run: |
+          mkdir -p tbs_webpressor
+          rsync -av ./ tbs_webpressor/ \
+            --exclude='react-admin' \
+            --exclude='.git' \
+            --exclude='.gitignore' \
+            --exclude='.gitlab-ci.yml' \
+            --exclude='.github' \
+            --exclude='tbs_webpressor_*'  # Avoid previous zips
+
+      - name: Get tag and zip
         run: |
           TAG_NAME=${GITHUB_REF##*/}
           ZIP_NAME="tbs_webpressor_${TAG_NAME}.zip"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          zip -r "$ZIP_NAME" tbs_webpressor
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
-
-      - name: Archive project files excluding specific items
-        run: |
-          zip -r "${ZIP_NAME}" . \
-            -x "react-admin/*" \
-            -x ".git/*" \
-            -x ".gitignore" \
-            -x ".github/*"
 
       - name: Create GitHub Release and Upload ZIP
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ env.TAG_NAME }}
-          tag_name: ${{ env.TAG_NAME }}
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           files: ${{ env.ZIP_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
