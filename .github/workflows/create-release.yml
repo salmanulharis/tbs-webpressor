@@ -18,21 +18,21 @@ jobs:
 
       - name: Prepare release folder
         run: |
-          mkdir tbs_webpressor
-          rsync -av ./ tbs_webpressor/ \
-            --exclude='tbs_webpressor' \
+          mkdir tbs-webpressor
+          rsync -av ./ tbs-webpressor/ \
+            --exclude='tbs-webpressor' \
             --exclude='react-admin' \
             --exclude='.git' \
             --exclude='.gitignore' \
             --exclude='.gitlab-ci.yml' \
             --exclude='.github' \
-            --exclude='tbs_webpressor_*.zip'
+            --exclude='tbs-webpressor_*.zip'
 
       - name: Create zip file
         run: |
           TAG_NAME=${GITHUB_REF##*/}
-          ZIP_NAME="tbs_webpressor_${TAG_NAME}.zip"
-          zip -r "$ZIP_NAME" tbs_webpressor
+          ZIP_NAME="tbs-webpressor_${TAG_NAME}.zip"
+          zip -r "$ZIP_NAME" tbs-webpressor
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Upload release
