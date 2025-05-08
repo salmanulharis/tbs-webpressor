@@ -3,7 +3,10 @@ name: Create Release Zip
 on:
   push:
     tags:
-      - '*'  # Trigger only on tag pushes
+      - '*'
+
+permissions:
+  contents: write  # Required to create releases and upload assets
 
 jobs:
   build:
@@ -32,7 +35,7 @@ jobs:
       - name: Zip release
         run: |
           cd release
-          zip -r "../$ZIP_NAME" .  # zip contents only, no parent folder with tag
+          zip -r "../$ZIP_NAME" .
 
       - name: Create GitHub Release and Upload ZIP
         uses: softprops/action-gh-release@v1
