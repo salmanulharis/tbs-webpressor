@@ -106,6 +106,9 @@ class TBS_WebPressor_Converter {
             case 'image/jpeg':
                 $image = imagecreatefromjpeg($source);
                 break;
+            case 'image/jpg':
+                $image = imagecreatefromjpeg($source);
+                break;
             case 'image/png':
                 $image = imagecreatefrompng($source);
                 imagepalettetotruecolor($image);

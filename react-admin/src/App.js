@@ -161,7 +161,7 @@ function App({ wpData = {} }) {
   
   return (
     <div className="wrap tbsw-dashboard">
-      <h1>WebPressor Media Conversion</h1>
+      <h1>WebPressor - WebP Image Converter</h1>
       
       <div className="tbsw-card">
         <div className="tbsw-progress-container">
@@ -183,7 +183,7 @@ function App({ wpData = {} }) {
           <div className="tbsw-stats">
             <div className="tbsw-stat-item">
               <span className="dashicons dashicons-images-alt"></span>
-              <span className="tbsw-stat-label">Total Media:</span>
+              <span className="tbsw-stat-label">Total Images:</span>
               <span className="tbsw-stat-value">{count}</span>
             </div>
             
