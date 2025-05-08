@@ -18,23 +18,24 @@ jobs:
 
       - name: Prepare release folder
         run: |
-          mkdir -p tbs_webpressor
+          mkdir tbs_webpressor
           rsync -av ./ tbs_webpressor/ \
+            --exclude='tbs_webpressor' \
             --exclude='react-admin' \
             --exclude='.git' \
             --exclude='.gitignore' \
             --exclude='.gitlab-ci.yml' \
             --exclude='.github' \
-            --exclude='tbs_webpressor_*'  # Avoid previous zips
+            --exclude='tbs_webpressor_*.zip'
 
-      - name: Get tag and zip
+      - name: Create zip file
         run: |
           TAG_NAME=${GITHUB_REF##*/}
           ZIP_NAME="tbs_webpressor_${TAG_NAME}.zip"
           zip -r "$ZIP_NAME" tbs_webpressor
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
-      - name: Create GitHub Release and Upload ZIP
+      - name: Upload release
         uses: softprops/action-gh-release@v1
         with:
           name: Release ${{ github.ref_name }}
