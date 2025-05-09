@@ -2,9 +2,11 @@
 Author: Techbysh
 Author URI: http://techbysh.com
 Contributors: techbysh
+Donate link: http://techbysh.com
 Tags: webp, image, compression, optimization, performance
 License: GPLv2 or later
 Requires at least: 5.0
+Requires PHP: 7.0
 Tested up to: 6.8
 Stable tag: 1.0.0
 
@@ -74,6 +76,11 @@ For browsers that don't support WebP, the plugin will automatically serve the or
 = Can I disable WebP conversion for specific images? =
 
 Currently, the plugin converts all JPG, JPEG, and PNG images. A future update may include selective conversion options.
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+Initial release of WebPressor with core WebP conversion and optimization features.
 
 == Requirements ==
 
