@@ -25,7 +25,12 @@ define('TBSW_PLUGIN_URL', trailingslashit(plugins_url('', __FILE__)));
 
 // Create languages directory if it doesn't exist
 if (!file_exists(TBSW_PLUGIN_DIR . 'languages')) {
-    mkdir(TBSW_PLUGIN_DIR . 'languages', 0755, true);
+    global $wp_filesystem;
+    if (!function_exists('WP_Filesystem')) {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        WP_Filesystem();
+    }
+    $wp_filesystem->mkdir(TBSW_PLUGIN_DIR . 'languages', FS_CHMOD_DIR);
 }
 
 /**

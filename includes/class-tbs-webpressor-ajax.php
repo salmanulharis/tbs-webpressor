@@ -73,7 +73,7 @@ class TBS_WebPressor_Ajax {
     public function tbsw_start_conversion() {
         $this->verify_nonce();
 
-        // Get page parameter from the request, with nonce verification already done in verify_nonce()
+        // Nonce is already verified in verify_nonce(), safe to use $_REQUEST now
         $page = isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
 
         $result = $this->converter->convert_attachements_batch($page);
@@ -151,6 +151,7 @@ class TBS_WebPressor_Ajax {
             ),
         );
 
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
         $attachments = new WP_Query($args);
         $count = $attachments->found_posts;
 
