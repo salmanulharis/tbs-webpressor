@@ -1,11 +1,11 @@
-=== WebPressor ===
-Author: TBS Plugins
-Author URI: https://tbsplugins.com
+=== WebPressor - WebP Image Converter & Optimizer ===
+Author: Techbysh
+Author URI: http://techbysh.com
 Contributors: techbysh
 Tags: webp, image, compression, optimization, performance
 License: GPLv2 or later
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Stable tag: 1.0.0
 
 Convert images to WebP format and serve them to compatible browsers for faster loading websites with reduced file sizes.

@@ -1,12 +1,14 @@
 <?php
 /**
- * Plugin Name: WebPressor - WebP Image Converter & Optimizer for WordPress
+ * Plugin Name: WebPressor - WebP Image Converter & Optimizer
  * Description: A WordPress plugin to convert images to WebP format and serve them to compatible browsers.
  * Version: 1.0.0
  * Author: Techbysh
  * Author URI: http://techbysh.com
  * Text Domain: tbs-webpressor
  * Domain Path: /languages
+ * License: GPL2
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // If this file is called directly, abort.
@@ -18,8 +20,13 @@ if (!defined('ABSPATH')) {
  * Define plugin constants
  */
 define('TBSW_VERSION', '1.0.0');
-define('TBSW_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('TBSW_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('TBSW_PLUGIN_DIR', trailingslashit(dirname(__FILE__)));
+define('TBSW_PLUGIN_URL', trailingslashit(plugins_url('', __FILE__)));
+
+// Create languages directory if it doesn't exist
+if (!file_exists(TBSW_PLUGIN_DIR . 'languages')) {
+    mkdir(TBSW_PLUGIN_DIR . 'languages', 0755, true);
+}
 
 /**
  * Include required files

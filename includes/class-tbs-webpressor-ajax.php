@@ -58,8 +58,9 @@ class TBS_WebPressor_Ajax {
      * @since    1.0.0
      */
     private function verify_nonce() {
-        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], 'tbsw-nonce')) {
-            wp_send_json_error(array('message' => 'Security check failed'));
+        // Check if nonce exists and is valid
+        if (!isset($_REQUEST['nonce']) || !check_ajax_referer('tbsw-nonce', 'nonce', false)) {
+            wp_send_json(array('success' => false, 'message' => 'Security check failed'));
             exit;
         }
     }
@@ -72,7 +73,7 @@ class TBS_WebPressor_Ajax {
     public function tbsw_start_conversion() {
         $this->verify_nonce();
 
-        // Get page parameter from the request
+        // Get page parameter from the request, with nonce verification already done in verify_nonce()
         $page = isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
 
         $result = $this->converter->convert_attachements_batch($page);
@@ -80,8 +81,8 @@ class TBS_WebPressor_Ajax {
         $hasMorePages = $result['hasMorePages'];
         
         // Handle the AJAX request for starting conversion
-        $response = array('status' => 'success', 'message' => 'Conversion started!', 'hasMorePages' => $hasMorePages);
-        wp_send_json($response);
+        $response = array('message' => 'Conversion started!', 'hasMorePages' => $hasMorePages);
+        wp_send_json_success($response);
     }
 
     /**
@@ -188,7 +189,7 @@ class TBS_WebPressor_Ajax {
     
                 // Delete main WebP if exists
                 if (file_exists($webp_main)) {
-                    unlink($webp_main);
+                    wp_delete_file($webp_main);
                 }
     
                 // Delete thumbnail WebPs
@@ -204,7 +205,7 @@ class TBS_WebPressor_Ajax {
                             $ext_thumb  = pathinfo($thumb_file, PATHINFO_EXTENSION);
                             $webp_thumb = preg_replace('/\.' . preg_quote($ext_thumb, '/') . '$/', '.webp', $thumb_file);
                             if (file_exists($webp_thumb)) {
-                                unlink($webp_thumb);
+                                wp_delete_file($webp_thumb);
                             }
                         }
                     }

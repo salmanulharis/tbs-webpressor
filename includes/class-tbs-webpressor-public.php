@@ -58,7 +58,8 @@ class TBS_WebPressor_Public {
         }
     
         // Check if browser supports WebP
-        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'image/webp') === false) {
+        $http_accept = isset($_SERVER['HTTP_ACCEPT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT'])) : '';
+        if (strpos($http_accept, 'image/webp') === false) {
             return $url;
         }
     
@@ -96,9 +97,9 @@ class TBS_WebPressor_Public {
         if (is_admin() || is_feed()) {
             return $content;
         }
-    
         // Check if browser supports WebP
-        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'image/webp') === false) {
+        $http_accept = isset($_SERVER['HTTP_ACCEPT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT'])) : '';
+        if (strpos($http_accept, 'image/webp') === false) {
             return $content;
         }
     
