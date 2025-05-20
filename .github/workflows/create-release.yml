@@ -19,20 +19,20 @@ jobs:
       - name: Prepare release folder
         run: |
           mkdir webpressor-webp-image-converter-optimizer
-          rsync -av ./ tbs-webpressor/ \
-            --exclude='tbs-webpressor' \
+          rsync -av ./ webpressor-webp-image-converter-optimizer/ \
+            --exclude='webpressor-webp-image-converter-optimizer' \
             --exclude='react-admin' \
             --exclude='.git' \
             --exclude='.gitignore' \
             --exclude='.gitlab-ci.yml' \
             --exclude='.github' \
-            --exclude='tbs-webpressor_*.zip'
+            --exclude='webpressor-webp-image-converter-optimizer_*.zip'
 
       - name: Create zip file
         run: |
           TAG_NAME=${GITHUB_REF##*/}
-          ZIP_NAME="tbs-webpressor_${TAG_NAME}.zip"
-          zip -r "$ZIP_NAME" tbs-webpressor
+          ZIP_NAME="webpressor-webp-image-converter-optimizer_${TAG_NAME}.zip"
+          zip -r "$ZIP_NAME" webpressor-webp-image-converter-optimizer
           echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Upload release
