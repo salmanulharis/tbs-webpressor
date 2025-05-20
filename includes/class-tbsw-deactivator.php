@@ -9,7 +9,7 @@ class TBS_WebPressor_Deactivator {
      *
      * @since    1.0.0
      */
-    public static function deactivate() {
+    public static function tbsw_deactivate() {
         // Clean up any plugin data if needed
         
         // Optionally remove options

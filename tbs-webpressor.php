@@ -4,8 +4,8 @@
  * Description: A WordPress plugin to convert images to WebP format and serve them to compatible browsers.
  * Version: 1.0.0
  * Author: Techbysh
- * Author URI: http://techbysh.com
- * Text Domain: tbs-webpressor
+ * Author URI: https://techbysh.com
+ * Text Domain: webpressor-webp-image-converter-optimizer
  * Domain Path: /languages
  * License: GPL2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -47,6 +47,6 @@ require_once TBSW_PLUGIN_DIR . 'includes/class-tbs-webpressor-ajax.php';
  */
 function run_tbs_webpressor() {
     $plugin = new TBS_WebPressor();
-    $plugin->run();
+    $plugin->tbsw_run();
 }
 run_tbs_webpressor();

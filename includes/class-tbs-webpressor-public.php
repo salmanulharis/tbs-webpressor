@@ -37,7 +37,7 @@ class TBS_WebPressor_Public {
      *
      * @since    1.0.0
      */
-    public function setup_hooks() {
+    public function tbsw_public_setup_hooks() {
         add_filter('wp_get_attachment_url', array($this, 'tbsw_maybe_serve_webp_version'), 9999);
         add_filter('the_content', array($this, 'tbsw_replace_images_with_webp'));
         add_filter('widget_text', array($this, 'tbsw_replace_images_with_webp'));

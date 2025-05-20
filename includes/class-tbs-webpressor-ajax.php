@@ -37,7 +37,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function setup_hooks() {
+    public function tbsw_ajax_setup_hooks() {
         // Ajax actions - mapped for both logged-in and non-logged in users
         add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
         add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
@@ -57,7 +57,7 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    private function verify_nonce() {
+    private function tbsw_verify_nonce() {
         // Check if nonce exists and is valid
         if (!isset($_REQUEST['nonce']) || !check_ajax_referer('tbsw-nonce', 'nonce', false)) {
             wp_send_json(array('success' => false, 'message' => 'Security check failed'));
@@ -71,12 +71,12 @@ class TBS_WebPressor_Ajax {
      * @since    1.0.0
      */
     public function tbsw_start_conversion() {
-        $this->verify_nonce();
+        $this->tbsw_verify_nonce();
 
-        // Nonce is already verified in verify_nonce(), safe to use $_REQUEST now
+        // Nonce is already verified in tbsw_verify_nonce(), safe to use $_REQUEST now
         $page = isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
 
-        $result = $this->converter->convert_attachements_batch($page);
+        $result = $this->converter->tbsw_convert_attachements_batch($page);
 
         $hasMorePages = $result['hasMorePages'];
         
@@ -91,7 +91,7 @@ class TBS_WebPressor_Ajax {
      * @since    1.0.0
      */
     public function tbsw_get_media_count() {
-        $this->verify_nonce();
+        $this->tbsw_verify_nonce();
 
         $args = array(
             'post_type' => 'attachment',
@@ -121,7 +121,7 @@ class TBS_WebPressor_Ajax {
      * @since    1.0.0
      */
     public function tbsw_get_pending_media_count() {
-        $this->verify_nonce();
+        $this->tbsw_verify_nonce();
 
         $args = array(
             'post_type' => 'attachment',
@@ -164,7 +164,7 @@ class TBS_WebPressor_Ajax {
      * @since    1.0.0
      */
     public function tbsw_reset_conversion() {
-        $this->verify_nonce();
+        $this->tbsw_verify_nonce();
     
         $args = array(
             'post_type'      => 'attachment',

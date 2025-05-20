@@ -37,7 +37,7 @@ class TBS_WebPressor_Admin {
      *
      * @since    1.0.0
      */
-    public function setup_hooks() {
+    public function tbsw_admin_setup_hooks() {
         add_action('admin_enqueue_scripts', array($this, 'tbsw_enqueue_admin_styles'));
         add_action('admin_menu', array($this, 'tbsw_register_admin_menu'));
         add_filter('wp_generate_attachment_metadata', array($this, 'tbsw_convert_on_upload'), 99, 2);
@@ -64,7 +64,7 @@ class TBS_WebPressor_Admin {
             'WebPressor',                 // Menu title
             'manage_options',            // Capability
             'tbsw-dashboard',            // Menu slug
-            array($this, 'dashboard_page'),       // Callback function
+            array($this, 'tbsw_dashboard_page'),       // Callback function
             'dashicons-admin-generic',   // Icon
             25                           // Position
         );
@@ -76,7 +76,7 @@ class TBS_WebPressor_Admin {
             'Dashboard',        // Menu title - text shown in the menu
             'manage_options',   // Capability required for access (admin level)
             'tbsw-dashboard',   // Menu slug - unique identifier for this page
-            array($this, 'dashboard_page') // Callback function that displays the page
+            array($this, 'tbsw_dashboard_page') // Callback function that displays the page
         );
 
         // Submenu item 2
@@ -86,7 +86,7 @@ class TBS_WebPressor_Admin {
             'Settings', // Menu title - text shown in the menu
             'manage_options', // Capability required for access (admin level)
             'tbsw-settings', // Menu slug - unique identifier for this page
-            array($this, 'settings_page') // Callback function that displays the page
+            array($this, 'tbsw_settings_page') // Callback function that displays the page
         );
     }
 
@@ -95,7 +95,7 @@ class TBS_WebPressor_Admin {
      *
      * @since    1.0.0
      */
-    public function dashboard_page() {
+    public function tbsw_dashboard_page() {
         include TBSW_PLUGIN_DIR . 'admin/dashboard.php';
     }
     
@@ -104,7 +104,7 @@ class TBS_WebPressor_Admin {
      *
      * @since    1.0.0
      */
-    public function settings_page() {
+    public function tbsw_settings_page() {
         include TBSW_PLUGIN_DIR . 'admin/settings.php';
     }
 
@@ -126,7 +126,7 @@ class TBS_WebPressor_Admin {
             // Check if auto-conversion on upload is enabled
             if ($option) {
                 // Use the converter instance to create WebP version
-                $converted = $this->converter->create_webp($attachment_id);
+                $converted = $this->converter->tbsw_create_webp($attachment_id);
             }
         }
         return $metadata;

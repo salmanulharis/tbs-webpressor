@@ -29,7 +29,7 @@ class TBS_WebPressor_Converter {
      * @param    int    $attachment_id    The attachment ID to convert
      * @return   array|bool               Conversion stats or false on failure
      */
-    public static function create_webp($attachment_id) {
+    public static function tbsw_create_webp($attachment_id) {
         $count = 0;
         $file = get_attached_file($attachment_id);
     
@@ -47,7 +47,7 @@ class TBS_WebPressor_Converter {
         $quality = intval(get_option('tbsw_webp_quality', 80));
     
         // Convert original image
-        if (self::create_webp_file($file, $webp_path, $quality)) {
+        if (self::tbsw_create_webp_file($file, $webp_path, $quality)) {
             $normalized_path = str_replace('\\', '/', $webp_path);
             update_post_meta($attachment_id, 'tbsw_webp_path', $normalized_path);
             $count++;
@@ -70,7 +70,7 @@ class TBS_WebPressor_Converter {
                 $thumb_ext = pathinfo($thumb_path, PATHINFO_EXTENSION);
                 $thumb_webp_path = preg_replace('/\.' . preg_quote($thumb_ext, '/') . '$/', '.webp', $thumb_path);
     
-                if (self::create_webp_file($thumb_path, $thumb_webp_path, $quality)) {
+                if (self::tbsw_create_webp_file($thumb_path, $thumb_webp_path, $quality)) {
                     $count++;
                 }
             }
@@ -88,7 +88,7 @@ class TBS_WebPressor_Converter {
      * @param    int       $quality       WebP quality (0-100)
      * @return   bool                     Success or failure
      */
-    public static function create_webp_file($source, $destination, $quality = 80) {
+    public static function tbsw_create_webp_file($source, $destination, $quality = 80) {
         if (!function_exists('imagewebp')) {
             return false;
         }
@@ -132,7 +132,7 @@ class TBS_WebPressor_Converter {
      * @param    int    $page    Current page for batch processing
      * @return   array           Result with hasMorePages status
      */
-    public static function convert_attachements_batch($page) {
+    public static function tbsw_convert_attachements_batch($page) {
         $hasMorePages = true;
         $args = array(
             'post_type'      => 'attachment',
@@ -157,7 +157,7 @@ class TBS_WebPressor_Converter {
                 $attachments->the_post();
                 $attachment_id = get_the_ID();
                 // Call conversion function
-                $created_data = self::create_webp($attachment_id);
+                $created_data = self::tbsw_create_webp($attachment_id);
             }
             wp_reset_postdata();
         } else {

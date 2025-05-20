@@ -21,7 +21,7 @@ if (isset($_POST['tbsw_save_settings']) && check_admin_referer('tbsw_settings_no
     $convert_on_upload = isset($_POST['convert_on_upload']) ? 1 : 0;
     update_option('tbsw_convert_on_upload', $convert_on_upload);
     
-    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'tbs-webpressor') . '</p></div>';
+    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'webpressor-webp-image-converter-optimizer') . '</p></div>';
 }
 
 // Get current settings
@@ -38,28 +38,28 @@ $convert_on_upload = get_option('tbsw_convert_on_upload', 1);
         <table class="form-table">
             <tr>
                 <th scope="row">
-                    <label for="webp_quality"><?php esc_html_e('WebP Quality', 'tbs-webpressor'); ?></label>
+                    <label for="webp_quality"><?php esc_html_e('WebP Quality', 'webpressor-webp-image-converter-optimizer'); ?></label>
                 </th>
                 <td>
                     <input type="number" name="webp_quality" id="webp_quality" 
                            value="<?php echo esc_attr($quality); ?>" 
                            min="0" max="100" step="1" class="small-text">
                     <p class="description">
-                        <?php esc_html_e('Quality level between 0 (worst quality, smaller file) and 100 (best quality, larger file).', 'tbs-webpressor'); ?>
+                        <?php esc_html_e('Quality level between 0 (worst quality, smaller file) and 100 (best quality, larger file).', 'webpressor-webp-image-converter-optimizer'); ?>
                         <br>
-                        <?php esc_html_e('Recommended: 75-85 for a good balance between quality and file size.', 'tbs-webpressor'); ?>
+                        <?php esc_html_e('Recommended: 75-85 for a good balance between quality and file size.', 'webpressor-webp-image-converter-optimizer'); ?>
                     </p>
                 </td>
             </tr>
             <tr>
                 <th scope="row">
-                    <label for="convert_on_upload"><?php esc_html_e('Convert on Upload', 'tbs-webpressor'); ?></label>
+                    <label for="convert_on_upload"><?php esc_html_e('Convert on Upload', 'webpressor-webp-image-converter-optimizer'); ?></label>
                 </th>
                 <td>
                     <input type="checkbox" name="convert_on_upload" id="convert_on_upload" 
                            value="1" <?php checked($convert_on_upload); ?>>
                     <p class="description">
-                        <?php esc_html_e('Automatically convert images to WebP when they are uploaded to the media library.', 'tbs-webpressor'); ?>
+                        <?php esc_html_e('Automatically convert images to WebP when they are uploaded to the media library.', 'webpressor-webp-image-converter-optimizer'); ?>
                     </p>
                 </td>
             </tr>
@@ -67,14 +67,14 @@ $convert_on_upload = get_option('tbsw_convert_on_upload', 1);
         
         <p class="submit">
             <input type="submit" name="tbsw_save_settings" class="button button-primary" 
-                   value="<?php echo esc_attr__('Save Settings', 'tbs-webpressor'); ?>">
+                   value="<?php echo esc_attr__('Save Settings', 'webpressor-webp-image-converter-optimizer'); ?>">
         </p>
     </form>
     
     <div class="tbsw-card">
-        <h2><?php esc_html_e('WebP Browser Support', 'tbs-webpressor'); ?></h2>
+        <h2><?php esc_html_e('WebP Browser Support', 'webpressor-webp-image-converter-optimizer'); ?></h2>
         <p>
-            <?php esc_html_e('WebP is supported by all modern browsers including:', 'tbs-webpressor'); ?>
+            <?php esc_html_e('WebP is supported by all modern browsers including:', 'webpressor-webp-image-converter-optimizer'); ?>
         </p>
         <ul>
             <li>Google Chrome (version 17+)</li>
@@ -84,7 +84,7 @@ $convert_on_upload = get_option('tbsw_convert_on_upload', 1);
             <li>Opera (version 11.10+)</li>
         </ul>
         <p>
-            <?php esc_html_e('For older browsers, the plugin will automatically serve the original JPG/PNG images.', 'tbs-webpressor'); ?>
+            <?php esc_html_e('For older browsers, the plugin will automatically serve the original JPG/PNG images.', 'webpressor-webp-image-converter-optimizer'); ?>
         </p>
     </div>
 </div>

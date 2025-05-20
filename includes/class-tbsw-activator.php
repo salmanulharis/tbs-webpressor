@@ -9,7 +9,7 @@ class TBS_WebPressor_Activator {
      *
      * @since    1.0.0
      */
-    public static function activate() {
+    public static function tbsw_activate() {
         // Create necessary database tables if needed
         global $wpdb;
         

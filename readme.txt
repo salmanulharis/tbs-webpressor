@@ -1,8 +1,8 @@
 === WebPressor - WebP Image Converter & Optimizer ===
 Author: Techbysh
-Author URI: http://techbysh.com
+Author URI: https://techbysh.com
 Contributors: techbysh
-Donate link: http://techbysh.com
+Donate link: https://techbysh.com
 Tags: webp, image, compression, optimization, performance
 License: GPLv2 or later
 Requires at least: 5.0

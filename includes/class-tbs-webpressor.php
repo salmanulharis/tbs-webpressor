@@ -55,8 +55,8 @@ class TBS_WebPressor {
      * @since    1.0.0
      */
     public function __construct() {
-        $this->load_dependencies();
-        $this->setup_components();
+        $this->tbsw_load_dependencies();
+        $this->tbsw_setup_components();
     }
     
     /**
@@ -65,7 +65,7 @@ class TBS_WebPressor {
      * @since    1.0.0
      * @access   private
      */
-    private function load_dependencies() {
+    private function tbsw_load_dependencies() {
         // Dependencies are already loaded in main plugin file
     }
     
@@ -75,7 +75,7 @@ class TBS_WebPressor {
      * @since    1.0.0
      * @access   private
      */
-    private function setup_components() {
+    private function tbsw_setup_components() {
         $this->converter = new TBS_WebPressor_Converter();
         $this->admin = new TBS_WebPressor_Admin($this->converter);
         $this->public = new TBS_WebPressor_Public($this->converter);
@@ -87,13 +87,13 @@ class TBS_WebPressor {
      *
      * @since    1.0.0
      */
-    public function run() {
+    public function tbsw_run() {
         add_action('init', array($this, 'init'));
         
         // Run component hooks
-        $this->admin->setup_hooks();
-        $this->public->setup_hooks();
-        $this->ajax->setup_hooks();
+        $this->admin->tbsw_admin_setup_hooks();
+        $this->public->tbsw_public_setup_hooks();
+        $this->ajax->tbsw_ajax_setup_hooks();
     }
 
     /**
@@ -103,7 +103,7 @@ class TBS_WebPressor {
      */
     public function init() {
         // Load text domain for translations
-        load_plugin_textdomain('tbs-webpressor', false, TBSW_PLUGIN_DIR . '/languages/');
+        load_plugin_textdomain('webpressor-webp-image-converter-optimizer', false, TBSW_PLUGIN_DIR . '/languages/');
         
         // Global enqueues (if needed)
         wp_enqueue_style('tbsw-style', TBSW_PLUGIN_URL . 'assets/css/style.css', array(), TBSW_VERSION);
@@ -117,9 +117,9 @@ class TBS_WebPressor {
             'is_admin' => is_admin(),
             'max_upload_size' => wp_max_upload_size(),
             'translations' => array(
-                'converting' => __('Converting images...', 'tbs-webpressor'),
-                'success' => __('Conversion completed successfully!', 'tbs-webpressor'),
-                'error' => __('Error during conversion', 'tbs-webpressor')
+                'converting' => __('Converting images...', 'webpressor-webp-image-converter-optimizer'),
+                'success' => __('Conversion completed successfully!', 'webpressor-webp-image-converter-optimizer'),
+                'error' => __('Error during conversion', 'webpressor-webp-image-converter-optimizer')
             )
         ));
     }
