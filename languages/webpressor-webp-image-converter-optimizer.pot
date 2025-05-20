@@ -1,0 +1,87 @@
+# Copyright (C) 2025 Techbysh
+# This file is distributed under the GPL2.
+msgid ""
+msgstr ""
+"Project-Id-Version: WebPressor - WebP Image Converter & Optimizer 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tbs-webpressor\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-05-20T11:45:40+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.11.0\n"
+"X-Domain: webpressor-webp-image-converter-optimizer\n"
+
+#. Plugin Name of the plugin
+#: tbs-webpressor.php
+msgid "WebPressor - WebP Image Converter & Optimizer"
+msgstr ""
+
+#. Description of the plugin
+#: tbs-webpressor.php
+msgid "A WordPress plugin to convert images to WebP format and serve them to compatible browsers."
+msgstr ""
+
+#. Author of the plugin
+#: tbs-webpressor.php
+msgid "Techbysh"
+msgstr ""
+
+#. Author URI of the plugin
+#: tbs-webpressor.php
+msgid "https://techbysh.com"
+msgstr ""
+
+#: admin/settings.php:24
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: admin/settings.php:41
+msgid "WebP Quality"
+msgstr ""
+
+#: admin/settings.php:48
+msgid "Quality level between 0 (worst quality, smaller file) and 100 (best quality, larger file)."
+msgstr ""
+
+#: admin/settings.php:50
+msgid "Recommended: 75-85 for a good balance between quality and file size."
+msgstr ""
+
+#: admin/settings.php:56
+msgid "Convert on Upload"
+msgstr ""
+
+#: admin/settings.php:62
+msgid "Automatically convert images to WebP when they are uploaded to the media library."
+msgstr ""
+
+#: admin/settings.php:70
+msgid "Save Settings"
+msgstr ""
+
+#: admin/settings.php:75
+msgid "WebP Browser Support"
+msgstr ""
+
+#: admin/settings.php:77
+msgid "WebP is supported by all modern browsers including:"
+msgstr ""
+
+#: admin/settings.php:87
+msgid "For older browsers, the plugin will automatically serve the original JPG/PNG images."
+msgstr ""
+
+#: includes/class-tbs-webpressor.php:120
+msgid "Converting images..."
+msgstr ""
+
+#: includes/class-tbs-webpressor.php:121
+msgid "Conversion completed successfully!"
+msgstr ""
+
+#: includes/class-tbs-webpressor.php:122
+msgid "Error during conversion"
+msgstr ""
