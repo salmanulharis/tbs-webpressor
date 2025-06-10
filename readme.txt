@@ -59,6 +59,18 @@ Installation of "WebPressor" can be done either by searching for "WebPressor" vi
 2. Conversion Settings
 3. Statistics and Performance Improvements
 
+== Source Code & Build Instructions ==
+
+This plugin's JavaScript/CSS assets are minified for production. The original source code and build tools are available publicly on GitHub.
+
+**Repository:**  
+https://github.com/salmanulharis/tbs-webpressor.git
+
+**How to build:**  
+1. Clone the repo: `git clone https://github.com/salmanulharis/tbs-webpressor.git`  
+2. Install dependencies: `yarn install`  
+3. Build assets: `yarn build`  
+
 == Frequently Asked Questions ==
 
 = Does this plugin replace original images? =

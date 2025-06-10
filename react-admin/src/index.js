@@ -5,7 +5,7 @@ import App from './App';
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
   // Find all React root elements
-  const reactRootElements = document.querySelectorAll('.tbsw-root');
+  const reactRootElements = document.querySelectorAll('.tbswebpressor-root');
   
   // Initialize React on each container found
   reactRootElements.forEach((container, index) => {

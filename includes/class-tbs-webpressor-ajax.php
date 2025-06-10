@@ -37,19 +37,19 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function tbsw_ajax_setup_hooks() {
+    public function tbswebpressor_ajax_setup_hooks() {
         // Ajax actions - mapped for both logged-in and non-logged in users
-        add_action('wp_ajax_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
-        add_action('wp_ajax_nopriv_tbsw_start_conversion', array($this, 'tbsw_start_conversion'));
+        add_action('wp_ajax_tbswebpressor_start_conversion', array($this, 'tbswebpressor_start_conversion'));
+        add_action('wp_ajax_nopriv_tbswebpressor_start_conversion', array($this, 'tbswebpressor_start_conversion'));
         
-        add_action('wp_ajax_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
-        add_action('wp_ajax_nopriv_tbsw_get_media_count', array($this, 'tbsw_get_media_count'));
+        add_action('wp_ajax_tbswebpressor_get_media_count', array($this, 'tbswebpressor_get_media_count'));
+        add_action('wp_ajax_nopriv_tbswebpressor_get_media_count', array($this, 'tbswebpressor_get_media_count'));
         
-        add_action('wp_ajax_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
-        add_action('wp_ajax_nopriv_tbsw_get_pending_media_count', array($this, 'tbsw_get_pending_media_count'));
+        add_action('wp_ajax_tbswebpressor_get_pending_media_count', array($this, 'tbswebpressor_get_pending_media_count'));
+        add_action('wp_ajax_nopriv_tbswebpressor_get_pending_media_count', array($this, 'tbswebpressor_get_pending_media_count'));
         
-        add_action('wp_ajax_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
-        add_action('wp_ajax_nopriv_tbsw_reset_conversion', array($this, 'tbsw_reset_conversion'));
+        add_action('wp_ajax_tbswebpressor_reset_conversion', array($this, 'tbswebpressor_reset_conversion'));
+        add_action('wp_ajax_nopriv_tbswebpressor_reset_conversion', array($this, 'tbswebpressor_reset_conversion'));
     }
 
     /**
@@ -57,9 +57,9 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    private function tbsw_verify_nonce() {
+    private function tbswebpressor_verify_nonce() {
         // Check if nonce exists and is valid
-        if (!isset($_REQUEST['nonce']) || !check_ajax_referer('tbsw-nonce', 'nonce', false)) {
+        if (!isset($_REQUEST['nonce']) || !check_ajax_referer('tbswebpressor-nonce', 'nonce', false)) {
             wp_send_json(array('success' => false, 'message' => 'Security check failed'));
             exit;
         }
@@ -70,13 +70,13 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function tbsw_start_conversion() {
-        $this->tbsw_verify_nonce();
+    public function tbswebpressor_start_conversion() {
+        $this->tbswebpressor_verify_nonce();
 
-        // Nonce is already verified in tbsw_verify_nonce(), safe to use $_REQUEST now
+        // Nonce is already verified in tbswebpressor_verify_nonce(), safe to use $_REQUEST now
         $page = isset($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
 
-        $result = $this->converter->tbsw_convert_attachements_batch($page);
+        $result = $this->converter->tbswebpressor_convert_attachements_batch($page);
 
         $hasMorePages = $result['hasMorePages'];
         
@@ -90,8 +90,8 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function tbsw_get_media_count() {
-        $this->tbsw_verify_nonce();
+    public function tbswebpressor_get_media_count() {
+        $this->tbswebpressor_verify_nonce();
 
         $args = array(
             'post_type' => 'attachment',
@@ -120,8 +120,8 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function tbsw_get_pending_media_count() {
-        $this->tbsw_verify_nonce();
+    public function tbswebpressor_get_pending_media_count() {
+        $this->tbswebpressor_verify_nonce();
 
         $args = array(
             'post_type' => 'attachment',
@@ -140,11 +140,11 @@ class TBS_WebPressor_Ajax {
             'meta_query' => array(
                 'relation' => 'OR',
                 array(
-                    'key' => 'tbsw_webp_path',
+                    'key' => 'tbswebpressor_webp_path',
                     'compare' => 'NOT EXISTS'
                 ),
                 array(
-                    'key' => 'tbsw_webp_path',
+                    'key' => 'tbswebpressor_webp_path',
                     'value' => '',
                     'compare' => '='
                 )
@@ -163,8 +163,8 @@ class TBS_WebPressor_Ajax {
      *
      * @since    1.0.0
      */
-    public function tbsw_reset_conversion() {
-        $this->tbsw_verify_nonce();
+    public function tbswebpressor_reset_conversion() {
+        $this->tbswebpressor_verify_nonce();
     
         $args = array(
             'post_type'      => 'attachment',
@@ -213,7 +213,7 @@ class TBS_WebPressor_Ajax {
                 }
     
                 // Remove meta for original webp path
-                delete_post_meta($attachment_id, 'tbsw_webp_path');
+                delete_post_meta($attachment_id, 'tbswebpressor_webp_path');
             }
     
             wp_reset_postdata();

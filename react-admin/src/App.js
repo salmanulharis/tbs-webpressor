@@ -24,7 +24,7 @@ function App({ wpData = {} }) {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: new URLSearchParams({
-            action: 'tbsw_start_conversion',
+            action: 'tbswebpressor_start_conversion',
             nonce: wpData.nonce,
             page: page
           })
@@ -68,7 +68,7 @@ function App({ wpData = {} }) {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: new URLSearchParams({
-            action: 'tbsw_reset_conversion',
+            action: 'tbswebpressor_reset_conversion',
             nonce: wpData.nonce,
           })
         });
@@ -97,7 +97,7 @@ function App({ wpData = {} }) {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          action: 'tbsw_get_media_count',
+          action: 'tbswebpressor_get_media_count',
           nonce: wpData.nonce,
         })
       });
@@ -124,7 +124,7 @@ function App({ wpData = {} }) {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          action: 'tbsw_get_pending_media_count',
+          action: 'tbswebpressor_get_pending_media_count',
           nonce: wpData.nonce,
         })
       });

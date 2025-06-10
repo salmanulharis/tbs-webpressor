@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Dashboard admin page template
@@ -13,5 +12,5 @@ if (!defined('ABSPATH')) {
 ?>
 
 <div class="wrap">
-    <div id="tbsw-root" class="tbsw-root"></div>
+    <div id="tbswebpressor-root" class="tbswebpressor-root"></div>
 </div>

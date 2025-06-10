@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class TBS_WebPressor {
+class TBS_WebPressor_WIC {
     
     /**
      * The loader that's responsible for maintaining and registering all hooks.
@@ -55,8 +55,8 @@ class TBS_WebPressor {
      * @since    1.0.0
      */
     public function __construct() {
-        $this->tbsw_load_dependencies();
-        $this->tbsw_setup_components();
+        $this->tbswebpressor_load_dependencies();
+        $this->tbswebpressor_setup_components();
     }
     
     /**
@@ -65,7 +65,7 @@ class TBS_WebPressor {
      * @since    1.0.0
      * @access   private
      */
-    private function tbsw_load_dependencies() {
+    private function tbswebpressor_load_dependencies() {
         // Dependencies are already loaded in main plugin file
     }
     
@@ -75,7 +75,7 @@ class TBS_WebPressor {
      * @since    1.0.0
      * @access   private
      */
-    private function tbsw_setup_components() {
+    private function tbswebpressor_setup_components() {
         $this->converter = new TBS_WebPressor_Converter();
         $this->admin = new TBS_WebPressor_Admin($this->converter);
         $this->public = new TBS_WebPressor_Public($this->converter);
@@ -87,13 +87,13 @@ class TBS_WebPressor {
      *
      * @since    1.0.0
      */
-    public function tbsw_run() {
+    public function tbswebpressor_main_run() {
         add_action('init', array($this, 'init'));
         
         // Run component hooks
-        $this->admin->tbsw_admin_setup_hooks();
-        $this->public->tbsw_public_setup_hooks();
-        $this->ajax->tbsw_ajax_setup_hooks();
+        $this->admin->tbswebpressor_admin_setup_hooks();
+        $this->public->tbswebpressor_public_setup_hooks();
+        $this->ajax->tbswebpressor_ajax_setup_hooks();
     }
 
     /**
@@ -102,18 +102,14 @@ class TBS_WebPressor {
      * @since    1.0.0
      */
     public function init() {
-        // Load text domain for translations
-        load_plugin_textdomain('webpressor-webp-image-converter-optimizer', false, TBSW_PLUGIN_DIR . '/languages/');
-        
-        // Global enqueues (if needed)
-        wp_enqueue_style('tbsw-style', TBSW_PLUGIN_URL . 'assets/css/style.css', array(), TBSW_VERSION);
-        wp_enqueue_script('tbsw-backend-script', TBSW_PLUGIN_URL . 'assets/js/backend.js', array('jquery'), TBSW_VERSION, true);
+        wp_enqueue_style('tbswebpressor-style', TBSWEBPRESSOR_PLUGIN_URL . 'assets/css/style.css', array(), TBSWEBPRESSOR_VERSION);
+        wp_enqueue_script('tbswebpressor-backend-script', TBSWEBPRESSOR_PLUGIN_URL . 'assets/js/backend.js', array('jquery'), TBSWEBPRESSOR_VERSION, true);
         
         // Localize script with data for JavaScript
-        wp_localize_script('tbsw-backend-script', 'tbswData', array(
+        wp_localize_script('tbswebpressor-backend-script', 'tbswData', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('tbsw-nonce'),
-            'plugin_url' => TBSW_PLUGIN_URL,
+            'nonce' => wp_create_nonce('tbswebpressor-nonce'),
+            'plugin_url' => TBSWEBPRESSOR_PLUGIN_URL,
             'is_admin' => is_admin(),
             'max_upload_size' => wp_max_upload_size(),
             'translations' => array(

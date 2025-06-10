@@ -11,29 +11,29 @@ if (!defined('ABSPATH')) {
 }
 
 // Save settings if form is submitted
-if (isset($_POST['tbsw_save_settings']) && check_admin_referer('tbsw_settings_nonce')) {
+if (isset($_POST['tbswebpressor_save_settings']) && check_admin_referer('tbswebpressor_settings_nonce')) {
     $quality = isset($_POST['webp_quality']) ? intval($_POST['webp_quality']) : 80;
     $quality = max(0, min(100, $quality)); // Ensure quality is between 0-100
     
-    update_option('tbsw_webp_quality', $quality);
+    update_option('tbswebpressor_webp_quality', $quality);
     
     // Save convert_on_upload setting
     $convert_on_upload = isset($_POST['convert_on_upload']) ? 1 : 0;
-    update_option('tbsw_convert_on_upload', $convert_on_upload);
+    update_option('tbswebpressor_convert_on_upload', $convert_on_upload);
     
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'webpressor-webp-image-converter-optimizer') . '</p></div>';
 }
 
 // Get current settings
-$quality = get_option('tbsw_webp_quality', 80);
-$convert_on_upload = get_option('tbsw_convert_on_upload', 1);
+$quality = get_option('tbswebpressor_webp_quality', 80);
+$convert_on_upload = get_option('tbswebpressor_convert_on_upload', 1);
 ?>
 
 <div class="wrap tbsw-settings">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     
     <form method="post" action="">
-        <?php wp_nonce_field('tbsw_settings_nonce'); ?>
+        <?php wp_nonce_field('tbswebpressor_settings_nonce'); ?>
         
         <table class="form-table">
             <tr>
@@ -66,7 +66,7 @@ $convert_on_upload = get_option('tbsw_convert_on_upload', 1);
         </table>
         
         <p class="submit">
-            <input type="submit" name="tbsw_save_settings" class="button button-primary" 
+            <input type="submit" name="tbswebpressor_save_settings" class="button button-primary" 
                    value="<?php echo esc_attr__('Save Settings', 'webpressor-webp-image-converter-optimizer'); ?>">
         </p>
     </form>
