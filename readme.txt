@@ -64,10 +64,10 @@ Installation of "WebPressor" can be done either by searching for "WebPressor" vi
 This plugin's JavaScript/CSS assets are minified for production. The original source code and build tools are available publicly on GitHub.
 
 **Repository:**  
-https://github.com/salmanulharis/tbs-webpressor.git
+https://github.com/TechbyshOrg/tbs-webpressor.git
 
 **How to build:**  
-1. Clone the repo: `git clone https://github.com/salmanulharis/tbs-webpressor.git`  
+1. Clone the repo: `git clone https://github.com/TechbyshOrg/tbs-webpressor.git`  
 2. Install dependencies: `yarn install`  
 3. Build assets: `yarn build`  
 
