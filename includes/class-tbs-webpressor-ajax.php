@@ -106,7 +106,11 @@ class TBS_WebPressor_Ajax {
                 'trash'
             ),
             'posts_per_page' => -1,
-            'post_mime_type' => 'image',
+            'post_mime_type' => array(
+                'image/jpeg',
+                'image/jpg',
+                'image/png'
+            ),
         );
 
         $attachments = new WP_Query($args);
@@ -124,28 +128,32 @@ class TBS_WebPressor_Ajax {
         $this->tbswebpressor_verify_nonce();
 
         $args = array(
-            'post_type' => 'attachment',
-            'post_status' => array(
-                'publish', 
-                'pending', 
-                'draft', 
-                'auto-draft', 
-                'future', 
-                'private', 
-                'inherit', 
+            'post_type'      => 'attachment',
+            'post_status'    => array(
+                'publish',
+                'pending',
+                'draft',
+                'auto-draft',
+                'future',
+                'private',
+                'inherit',
                 'trash'
             ),
             'posts_per_page' => -1,
-            'post_mime_type' => 'image',
-            'meta_query' => array(
+            'post_mime_type' => array(
+                'image/jpeg',
+                'image/jpg',
+                'image/png'
+            ),
+            'meta_query'     => array(
                 'relation' => 'OR',
                 array(
-                    'key' => 'tbswebpressor_webp_path',
+                    'key'     => 'tbswebpressor_webp_path',
                     'compare' => 'NOT EXISTS'
                 ),
                 array(
-                    'key' => 'tbswebpressor_webp_path',
-                    'value' => '',
+                    'key'     => 'tbswebpressor_webp_path',
+                    'value'   => '',
                     'compare' => '='
                 )
             ),
@@ -157,6 +165,7 @@ class TBS_WebPressor_Ajax {
 
         wp_send_json_success(array('count' => $count));
     }
+
 
     /**
      * Reset all conversions
