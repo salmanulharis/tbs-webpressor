@@ -34,7 +34,8 @@ function App({ wpData = {} }) {
           throw new Error('Network response was not ok');
         }
 
-        const data = await response.json();
+        const response_data = await response.json();
+        const data = response_data.data;
         
         // Check if we need to continue processing more pages
         if (data.hasMorePages && !stopConversion.current) {
@@ -45,7 +46,6 @@ function App({ wpData = {} }) {
         await fetchMediaCount();
         await fetchPendingMediaCount();
       } catch (error) {
-        // console.error('Error during conversion:', error);
         setIsConverting(false);
       }
     };
